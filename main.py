@@ -1,52 +1,136 @@
 from playsound import playsound
+import question_interface
+from examples import *
+from login_interface import *
 import random
-
-corpus = {"Compréhension Orale":
-          [{"F:\\Raouf\\BBC\\07 - YOLO.mp3": ("Listen to the audio and choose the right answer", [
-              ("1-Gims", 1), ("2-Booba", 0), ("3-La fouine", 0), ("4-Dinos", 1)])},
-           {"F:\\Raouf\\BBC\\07 - YOLO.mp3": ("Listen to the audio and choose the right answer", [
-               ("1-ziak", 1), ("2-auz", 0), ("3-freeze", 0), ("4-hamza", 1)])},
-           {"F:\\Raouf\\BBC\\07 - YOLO.mp3": ("Listen to the audio and choose the right answer", [
-               ("1-kaaris", 1), ("2-XVbabar", 0), ("3-ninho", 0), ("4-SCH", 1)])}],
-          "Compréhension de l'écrit":
-          [{"Adel is a student is a First year Master Student in IA ": ("What does adel study at College ?", [
-              ("1-Biology", 0), ("2-IA", 1), ("3-Geology", 0), ("4-Psychology", 0)])},
-           {"Ahmed is a student is a First year Master Student in IA ": ("What does adel study at College ?", [
-               ("1-stat", 0), ("2-math", 1), ("3-algebre", 0), ("4-Bio", 0)])},
-           {"raouf is a student is a First year Master Student in IA ": ("What does adel study at College ?", [
-               ("1-Bio", 0), ("2-stat", 1), ("3-info", 0), ("4-Psychology", 0)])}],
-          "Structure de langue":
-          [{"We .... go check if the exam's results are out": ("Fill the gap with the corresponding word", [("1-should", 1), ("2-could", 0), ("3-would", 0), ("4-want", 1)])},
-           {"We .... to go check on her tomorrow, she will be abroad after that for a while": (
-               "Fill the gap with the corresponding word", [("1-have", 1), ("2-could", 0), ("3-would", 0), ("4-want", 1)])},
-           {"wait, where is my phone i'm sure i .... it here ": ("Fill the gap with the corresponding word", [("1-left", 1), ("2-right", 0), ("3-ate", 0), ("4-went", 1)])}]
-          }
+import sys
+from Main_interface import *
+import score
 
 
-""" def test(corpus):
-    print("\nWelcome to your english level test!\n Please before starting, identify yourself\n#########\n")
-    # print("ID :")
-    # ID = input()
-    # print("Password:")
-    # password = input()
-    print(f"\n   you are ready to start your test. Let's dive in !\n ")
-    cpt_tr = 0
-    cpt = 0
-    for i in corpus.keys():
-        print(f"######## {i} ########\n")
-        for j in corpus[i]:
-            if i == "Compréhension Orale":
-                pass
-                # playsound(list(j.items())[0][0])
-            else:
-                print(list(j.items())[0][0])
-            print(list(j.items())[0][1][0])
-            for k in list(j.items())[0][1][1]:
-                print(k[0])
-            answer = input()
-            cpt_tr += list(j.items())[0][1][1][int(answer)-1][1]
-            cpt += 1
-    print(f"Votre score est de {cpt_tr}/{cpt}") """
+class LoginPage(QtWidgets.QDialog, Ui_Dialog):
+    def __init__(self, parent=None):
+        super(LoginPage, self).__init__(parent)
+        self.setupUi(self)
+        self.Login.clicked.connect(self.LoginRedirect)
+        self.question = question
+
+    def LoginRedirect(self):
+        if self.ID.text() == "Admin" and self.Password.text() == "Admin":
+            self.accept()
+        else:
+            QtWidgets.QMessageBox.warning(
+                self, 'Error', 'Bad user or password')
+
+
+class menu(QtWidgets.QWidget):
+
+    def __init__(self, question):
+        super().__init__()
+        self.showMinimized()
+        self.layout = QtWidgets.QStackedLayout()
+        self.setLayout(self.layout)
+        self.showMaximized()
+        self.M1 = FirstApp(question[0])
+        self.M2 = FirstApp(question[1])
+        self.M3 = FirstApp(question[2])
+        self.M4 = Score()
+        self.layout.addWidget(self.M1)
+        self.layout.addWidget(self.M2)
+        self.layout.addWidget(self.M3)
+        self.layout.addWidget(self.M4)
+        self.layout.setCurrentWidget(self.M1)
+        self.M1.pushButton.clicked.connect(self.toM2)
+        self.M2.pushButton.clicked.connect(self.toM3)
+        self.M3.pushButton.clicked.connect(self.toM4)
+        self.cpt = 0
+
+    def toM2(self):
+        if self.M1.radioButton.isChecked():
+            self.cpt += 1
+        self.layout.setCurrentWidget(self.M2)
+        self.showMaximized()
+
+    def toM3(self):
+        if self.M2.radioButton.isChecked():
+            self.cpt += 1
+        self.layout.setCurrentWidget(self.M3)
+        self.showMaximized()
+
+    def toM4(self):
+        if self.M3.radioButton.isChecked():
+            self.cpt += 1
+        self.M4.label_2.setText(str(self.cpt)+"/03")
+        self.layout.setCurrentWidget(self.M4)
+        self.showMaximized()
+
+
+class Score(QtWidgets.QMainWindow, score.Ui_MainWindow):
+    def __init__(self, parent=None):
+        super(Score, self).__init__(parent)
+        self.setupUi(self)
+        self.score = 0
+
+
+class FirstApp(QtWidgets.QMainWindow, question_interface.Ui_MainWindow):
+    def __init__(self, question, parent=None):
+        super(FirstApp, self).__init__(parent)
+        self.setupUi(self)
+        self.question = question
+        key = list(question.keys())[0]
+        quest = self.question[key][0]
+        answers = self.question[key][1]
+        self.change_header_Text(key)
+        self.change_Question_Text(quest)
+        """ if i == "Compréhension Orale":
+            pass """
+        # print('possible answers : ')
+        self.change_Answers(answers)
+        # wait
+        # answer = input("what's is your answer: ")
+        # return answers[int(answer)-1][1]
+
+    def change_header_Text(self, string):
+        self.label.setText(string)
+
+    def change_Header_Text(self, string):
+        self.label.setText(string)
+
+    def change_Question_Text(self, string):
+        self.label_2.setText(string)
+
+    def change_Answers(self, answers):
+        self.radioButton.setText(answers[0][0])
+        self.radioButton_2.setText(answers[1][0])
+        self.radioButton_3.setText(answers[2][0])
+        self.radioButton_4.setText(answers[3][0])
+
+    """def answer_question(self, question):
+        question = self.question
+        key = list(question.keys())[0]
+        quest = question[key][0]
+        answers = question[key][1]
+        self.change_header_Text(key)
+        self.change_Question_Text(quest)
+         if i == "Compréhension Orale":
+            pass 
+        # print('possible answers : ')
+        self.change_Answers(answers)
+        # wait
+        # answer = input("what's is your answer: ")
+        # return answers[int(answer)-1][1]"""
+
+    """def module_Answers(self, module):
+        questions = list(module.values())[0]
+        score = 0
+        for i in questions:
+            score = score + answer_question(i, ui)
+        return score"""
+
+    """def run_exam(self, corpus):
+        for i in list(corpus.keys()):
+            _temp = {i: corpus[i]}
+            module_Answers(_temp, ui)"""
 
 
 def fetch_questions(corpus, Number):  # returns a reduced dic with the same structure
@@ -62,6 +146,7 @@ def answer_question(question):
     quest = question[key][0]
     answers = question[key][1]
     print(key)
+    ui.change_header_Text(key)
     print(quest)
     """ if i == "Compréhension Orale":
         pass """
@@ -73,29 +158,32 @@ def answer_question(question):
     return answers[int(answer)-1][1]
 
 
-def module_Answers(module):
+def module_Answers(sel module):
     questions = list(module.values())[0]
     score = 0
     for i in questions:
-        score = score + answer_question(i)
+        score = score + answer_question(i, ui)
     return score
 
 
-def run_exam(corpus):
+def run_exam(corpus, ui):
     for i in list(corpus.keys()):
         _temp = {i: corpus[i]}
-        module_Answers(_temp)
+        module_Answers(_temp, ui)
 
 
-question = {'F:\\Raouf\\BBC\\07 - YOLO.mp3': ('Listen to the audio and choose the right answer', [
-    ('1-ziak', 0), ('2-azur', 0), ('3-freeze', 0), ('4-hamza', 1)])}
-module = {"Compréhension Orale":
-          [{"F:\\Raouf\\BBC\\07 - YOLO.mp3": ("Listen to the audio and choose the right answer", [
-              ("1-Gims", 1), ("2-Booba", 0), ("3-La fouine", 0), ("4-Dinos", 1)])},
-           {"F:\\Raouf\\BBC\\07 - YOLO.mp3": ("Listen to the audio and choose the right answer", [
-               ("1-ziak", 1), ("2-auz", 0), ("3-freeze", 0), ("4-hamza", 1)])},
-           {"F:\\Raouf\\BBC\\07 - YOLO.mp3": ("Listen to the audio and choose the right answer", [
-               ("1-kaaris", 1), ("2-XVbabar", 0), ("3-ninho", 0), ("4-SCH", 1)])}]}
+app = QtWidgets.QApplication(sys.argv)
+dialog = QtWidgets.QDialog()
+login = LoginPage()
+# ui = FirstApp(MainWindow, question)
+if login.exec_() == QtWidgets.QDialog.Accepted:
+    window = menu(question)
+    window.show()
+    sys.exit(app.exec_())
+sys.exit(app.exec_())
+sys.exit(app.exec_())
+
+
 # print(fetch_questions(corpus, 2))
 # print(answer_question(question))
-# run_exam(corpus)
+# run_exam(corpus, ui)
