@@ -31,37 +31,67 @@ class menu(QtWidgets.QWidget):
         self.layout = QtWidgets.QStackedLayout()
         self.setLayout(self.layout)
         self.showMaximized()
-        self.M1 = FirstApp(question[0])
-        self.M2 = FirstApp(question[1])
-        self.M3 = FirstApp(question[2])
-        self.M4 = Score()
-        self.layout.addWidget(self.M1)
-        self.layout.addWidget(self.M2)
-        self.layout.addWidget(self.M3)
-        self.layout.addWidget(self.M4)
-        self.layout.setCurrentWidget(self.M1)
-        self.M1.pushButton.clicked.connect(self.toM2)
-        self.M2.pushButton.clicked.connect(self.toM3)
-        self.M3.pushButton.clicked.connect(self.toM4)
+        self.M = []
+        for i in range(len(question)):
+            self.M.append(FirstApp(question[i]))
+        print(self.M)
+        print(len(self.M))
+        self.S = Score()
+        for i in range(len(self.M)):
+            self.layout.addWidget(self.M[i])
+        self.layout.addWidget(self.S)
+        self.layout.setCurrentWidget(self.M[0])
+        self.M[0].pushButton.clicked.connect(lambda: self.toM(1))
+        self.M[1].pushButton.clicked.connect(lambda: self.toM(2))
+        self.M[2].pushButton.clicked.connect(lambda: self.toM(3))
+        self.M[3].pushButton.clicked.connect(lambda: self.toM(4))
+        self.M[4].pushButton.clicked.connect(lambda: self.toM(5))
+        self.M[5].pushButton.clicked.connect(lambda: self.toM(6))
+        self.M[6].pushButton.clicked.connect(lambda: self.toM(7))
+        self.M[7].pushButton.clicked.connect(lambda: self.toM(8))
+        self.M[8].pushButton.clicked.connect(lambda: self.toM(9))
+        """for  in range(len(self.M)-1):
+            self.M[i].pushButton.clicked.connect(lambda: self.toM(i+1))"""
+        self.M[len(self.M)-1].pushButton.clicked.connect(self.toS)
+        self
         self.cpt = 0
 
-    def toM2(self):
-        if self.M1.radioButton.isChecked():
-            self.cpt += 1
-        self.layout.setCurrentWidget(self.M2)
+    def toM(self, i):
+        # if self.M1.radioButton.isChecked():
+        #    self.cpt += 1
+        key = list(question[i-1].keys())[0]
+        quest = question[i-1][key][0]
+        answers = question[i-1][key][1]
+        if self.M[i-1].radioButton.isChecked():
+            ans = 0
+        if self.M[i-1].radioButton_2.isChecked():
+            ans = 1
+        if self.M[i-1].radioButton_3.isChecked():
+            ans = 2
+        if self.M[i-1].radioButton_4.isChecked():
+            ans = 3
+        self.cpt = self.cpt + answers[ans][1]
+        self.layout.setCurrentWidget(self.M[i])
         self.showMaximized()
 
-    def toM3(self):
-        if self.M2.radioButton.isChecked():
-            self.cpt += 1
-        self.layout.setCurrentWidget(self.M3)
-        self.showMaximized()
-
-    def toM4(self):
-        if self.M3.radioButton.isChecked():
-            self.cpt += 1
-        self.M4.label_2.setText(str(self.cpt)+"/03")
-        self.layout.setCurrentWidget(self.M4)
+    def toS(self):
+        # if self.M1.radioButton.isChecked():
+        #    self.cpt += 1
+        i = len(self.M) - 1
+        key = list(question[i-1].keys())[0]
+        quest = question[i-1][key][0]
+        answers = question[i-1][key][1]
+        if self.M[i-1].radioButton.isChecked():
+            ans = 0
+        if self.M[i-1].radioButton_2.isChecked():
+            ans = 1
+        if self.M[i-1].radioButton_3.isChecked():
+            ans = 2
+        if self.M[i-1].radioButton_4.isChecked():
+            ans = 3
+        self.cpt = self.cpt + answers[ans][1]
+        self.S.label_2.setText(str(self.cpt) + "/10")
+        self.layout.setCurrentWidget(self.S)
         self.showMaximized()
 
 
@@ -69,7 +99,6 @@ class Score(QtWidgets.QMainWindow, score.Ui_MainWindow):
     def __init__(self, parent=None):
         super(Score, self).__init__(parent)
         self.setupUi(self)
-        self.score = 0
 
 
 class FirstApp(QtWidgets.QMainWindow, question_interface.Ui_MainWindow):
@@ -113,7 +142,7 @@ class FirstApp(QtWidgets.QMainWindow, question_interface.Ui_MainWindow):
         self.change_header_Text(key)
         self.change_Question_Text(quest)
          if i == "Compréhension Orale":
-            pass 
+            pass
         # print('possible answers : ')
         self.change_Answers(answers)
         # wait
@@ -158,7 +187,7 @@ def answer_question(question):
     return answers[int(answer)-1][1]
 
 
-def module_Answers(sel module):
+def module_Answers(sel, module):
     questions = list(module.values())[0]
     score = 0
     for i in questions:
