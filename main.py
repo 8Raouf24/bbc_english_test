@@ -6,6 +6,7 @@ import random
 import sys
 from Main_interface import *
 import score
+from PyQt5 import QtPrintSupport
 
 
 class LoginPage(QtWidgets.QDialog, Ui_Dialog):
@@ -34,8 +35,6 @@ class menu(QtWidgets.QWidget):
         self.M = []
         for i in range(len(question)):
             self.M.append(FirstApp(question[i]))
-        print(self.M)
-        print(len(self.M))
         self.S = Score()
         for i in range(len(self.M)):
             self.layout.addWidget(self.M[i])
@@ -99,6 +98,21 @@ class Score(QtWidgets.QMainWindow, score.Ui_MainWindow):
     def __init__(self, parent=None):
         super(Score, self).__init__(parent)
         self.setupUi(self)
+        self.Button.clicked.connect(self.print_widget)
+
+    def print_widget(self):
+        # Create printer
+        printer = QtPrintSupport.QPrinter()
+        # Create painter
+        painter = QtGui.QPainter()
+        # Start painter
+        painter.begin(printer)
+        # Grab a widget you want to print
+        screen = self.grab()
+        # Draw grabbed pixmap
+        painter.drawPixmap(10, 10, screen)
+        # End painting
+        painter.end()
 
 
 class FirstApp(QtWidgets.QMainWindow, question_interface.Ui_MainWindow):
